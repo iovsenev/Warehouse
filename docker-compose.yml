@@ -1,0 +1,48 @@
+services:
+  warehouse.api:
+    image: ${DOCKER_REGISTRY-}warehouseapi
+    container_name: warehouseapi
+    build:
+      context: .
+      dockerfile: Warehouse.Api/Dockerfile
+    ports:
+      - 8081:8081
+      - 8080:8080
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Database=Host=warehouse.db;Port=5432;Database=warehouse;Username=warehouse;Password=1234
+    depends_on:
+      - warehouse.db
+    volumes:
+      - shared-data:/app/warehouse
+  warehouse.db:
+    image: postgres:latest
+    container_name: warehouse.db
+    environment:
+        - POSTGRES_DB=warehouse
+        - POSTGRES_USER=warehouse
+        - POSTGRES_PASSWORD=1234
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+  redis:
+    image: redis:latest
+    container_name: warehouse.redis
+    environment:
+      - REDIS_PASSWORD=1234 
+    command: ["redis-server", "--requirepass", "1234"]
+    ports:
+      - "6378:6379"
+    volumes:
+      - shared-data:/data
+volumes:
+  shared-data: 
+    driver: local
+    driver_opts:
+        type: none
+        o: bind
+        device: "D:/volumes/warehouse"
+  postgres-data:
