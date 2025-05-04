@@ -28,6 +28,34 @@ public class WarehouseController : ControllerBase
         return Ok(sector.Id);
     }
 
+    [HttpGet("sectors/all")]
+    public async Task<IActionResult> GetAllSectors(bool? isFreeCells = null)
+    {
+        var sectors = await _context.Sectors
+            .AsNoTracking()
+            .Include(s => s.StorageCells)
+            .Where(s => isFreeCells.HasValue 
+                    ? s.StorageCells.Any(sc => sc.IsLocked == !isFreeCells)     
+                    : true)
+            .Select(s =>
+            new GetSectorDto(
+                s.Id.ToString(),
+                s.Name,
+                s.StorageCells
+                    .Select(sc => 
+                        new GetCellDto(
+                            s.Id.ToString(), 
+                            sc.Id.ToString(), 
+                            sc.Name,
+                            sc.Width, 
+                            sc.Height, 
+                            sc.Depth))
+                    .ToList()))
+            .ToListAsync();
+
+        return Ok(sectors);
+    }
+
     [HttpPost("createCell")]
     public async Task<IActionResult> CreateStorageCell([FromBody] CreateCellDto dto)
     {
@@ -105,3 +133,8 @@ public record GetCellDto(
     double Width,
     double Height,
     double Depth);
+
+public record GetSectorDto(
+    string SectorId,
+    string Name,
+    List<GetCellDto> cels);
