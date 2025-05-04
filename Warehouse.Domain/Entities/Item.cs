@@ -8,11 +8,11 @@ public class Item : Entity
     public double Width { get; set; }
     public double Height { get; set; }
     public double Depth { get; set; }
-    public bool InStorage { get; set; }
-    public bool InProcessing { get; set; }
+    public bool InStorage { get; set; } = false;
+    public bool InProcessing { get; set; } = true;
 
     public StorageCell? Cell { get; set; }
-    public Customer? Customer { get; set; }
+    public Customer Customer { get; set; }
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Warehouse.Application.Commands.CreateCustomer;
+using Warehouse.Application.Commands.CreateItem;
 using Warehouse.Infrastructure;
 
 namespace Warehouse.Api.Controllers;
@@ -39,5 +40,18 @@ public class CustomerController : ControllerBase
 
         return Ok(customer);
 
+    }
+
+    [HttpPost("CreateItem")]
+    public async Task<IActionResult> CreateItem(
+        [FromBody] CreateItemRequest dto,
+        [FromServices] CreateItemCommand command,
+        CancellationToken token)
+    {
+        var result = await command.CummandRun(dto, token);
+
+        if (result.IsFailure)
+            return BadRequest();
+        return Ok(result.Value);  
     }
 }

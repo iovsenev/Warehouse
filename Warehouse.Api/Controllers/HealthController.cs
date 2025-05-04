@@ -15,5 +15,3 @@ public class HealthController: ControllerBase
 
     
 }
-
-public record CreateItemRequest(string Name);
